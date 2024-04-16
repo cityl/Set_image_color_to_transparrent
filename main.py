@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog
-from PIL import Image, ImageTk, ImageGrab  # Make sure to import ImageResampling
+from PIL import Image, ImageTk, ImageGrab
 import pyautogui
 import subprocess
 import os
@@ -273,7 +273,6 @@ class ColorPickerApp:
             self.transparent_canvas.config(width=canvas_width, height=canvas_height)
 
     def display_processed_image(self):
-        print("Entering display_processed_image function")
         # Ensure processed_image is updated here similar to the old version
         if self.original_image:
             self.processed_image = self.make_transparent(self.original_image)
