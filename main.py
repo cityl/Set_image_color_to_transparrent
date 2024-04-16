@@ -133,7 +133,6 @@ class ColorPickerApp:
             subprocess.run(command, shell=True)
             print("File path copied to clipboard:", self.processed_image_path)
     
-    # Method to paste image from clipboard
     def paste_image(self, event=None):
         try:
             # Try to grab an image directly from the clipboard
@@ -165,7 +164,6 @@ class ColorPickerApp:
         except Exception as e:
             print("Error pasting image:", e)
 
-    # Method to get data from the clipboard
     def get_clipboard_data(self, format):
         try:
             # Prepare the PowerShell command to get clipboard data of specified format
