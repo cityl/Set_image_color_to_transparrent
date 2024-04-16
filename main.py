@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, Scale
 from PIL import Image, ImageTk, ImageGrab
 import pyautogui
 import subprocess
@@ -19,6 +19,7 @@ class ColorPickerApp:
         self.original_image = None
         self.processed_image = None
         self.temp_folder = 'temp'
+        self.tolerance = 0  # Tolerance value
 
         # Setup UI
         self.setup_ui()
@@ -39,7 +40,7 @@ class ColorPickerApp:
         self.setup_home_area()
 
     def setup_home_area(self):
-        # Main frame for "Home" area, integrating all components
+        # Main frame for "Home" area
         self.home_frame = tk.Frame(self.root)
         self.home_frame.pack(fill='both', expand=True, padx=10, pady=10)
 
@@ -51,22 +52,23 @@ class ColorPickerApp:
         # Frame for pixel color selection
         self.color_frame = tk.Frame(self.home_frame)
         self.color_frame.pack(side="left", fill='y')
-
-        # Label to explain usage of 'W' key
         self.instruction_label = tk.Label(self.color_frame, text="Press 'W' to select a color", anchor="w", justify="left")
         self.instruction_label.grid(row=0, column=0, columnspan=2, sticky="w", padx=10, pady=5)
 
-        # Label to display pixel color
         self.label = tk.Label(self.color_frame, text="Pixel Color: ")
         self.label.grid(row=1, column=0, columnspan=2, sticky="w", padx=10, pady=5)
 
-        # Frame for the color list
         self.color_list = tk.Frame(self.color_frame)
         self.color_list.grid(row=2, column=0, columnspan=2, sticky="w", padx=10, pady=5)
 
-        self.auto_update = tk.BooleanVar(value=True)  # Default is enabled
+        # Slider for selecting tolerance
+        self.tolerance_slider = Scale(self.color_frame, from_=0, to=50, orient="horizontal", label="Tolerance")
+        self.tolerance_slider.grid(row=3, column=0, columnspan=2, sticky="we", padx=10, pady=10)
+
+        self.auto_update = tk.BooleanVar(value=True)  # Auto-update toggle
         auto_update_checkbox = tk.Checkbutton(self.color_frame, text="Auto Update Image", variable=self.auto_update)
-        auto_update_checkbox.grid(row=3, column=0, columnspan=2, sticky="w", padx=10, pady=5)
+        auto_update_checkbox.grid(row=4, column=0, columnspan=2, sticky="w", padx=10, pady=5)
+
 
     def setup_canvas_frame(self):
         # Frame for the canvas
@@ -271,6 +273,7 @@ class ColorPickerApp:
             self.transparent_canvas.config(width=canvas_width, height=canvas_height)
 
     def display_processed_image(self):
+        print("Entering display_processed_image function")
         # Ensure processed_image is updated here similar to the old version
         if self.original_image:
             self.processed_image = self.make_transparent(self.original_image)
@@ -295,14 +298,22 @@ class ColorPickerApp:
         return img.resize((new_width, new_height), Image.Resampling.LANCZOS)
 
     def make_transparent(self, img):
+        """ Update to use tolerance for transparency """
+        tolerance = self.tolerance_slider.get()
         img = img.convert("RGBA")
         datas = img.getdata()
         new_data = []
+
         for item in datas:
-            if item[:3] in self.pixel_colors:
-                new_data.append((255, 255, 255, 0))  # Set pixel to transparent (white with alpha 0)
-            else:
+            match = False
+            for color in self.pixel_colors:
+                if all(abs(item[i] - color[i]) <= tolerance for i in range(3)):
+                    new_data.append((255, 255, 255, 0))  # Make transparent
+                    match = True
+                    break
+            if not match:
                 new_data.append(item)
+
         img.putdata(new_data)
         return img
 
@@ -315,4 +326,4 @@ class ColorPickerApp:
 if __name__ == "__main__":
     root = tk.Tk()
     app = ColorPickerApp(root)
-    root.mainloop()  # Run the Tkinter event loop            
+    root.mainloop()  # Run the Tkinter event loop          
