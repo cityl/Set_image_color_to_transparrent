@@ -1,4 +1,5 @@
-Python application that allows users to select pixel colors from images and create transparent images based on selected colors.
+Python application that allows users to manipulate images by changing individual pixel color values.
+Used to remove background from images by setting selected pixel alpha values to 0.
 
 
 ## Features
